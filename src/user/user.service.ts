@@ -5,6 +5,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { sign } from 'jsonwebtoken'; 
+import { LoginUserDTO } from '@/user/DTOs/loginUser.dto';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -44,6 +46,28 @@ export class UserService {
 
       throw new HttpException(error.detail, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async login(loginDTO: LoginUserDTO): Promise<UserEntity> {
+    const user = await this.findByEmail(loginDTO.email); // try find user by email
+    if(!user) {
+      throw new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED)
+    }
+
+    const matchPassword = await compare(loginDTO.password, user.password); // verify if same password in DB
+    if(!matchPassword) {
+      throw new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED)
+    }
+
+    return user;
+  }
+
+  async findByEmail(email: string) {
+    return await this.userRepository.findOne({
+      where: {
+        email
+      }
+    });
   }
 
   generateToken(user: UserEntity): string {
