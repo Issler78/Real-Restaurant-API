@@ -1,7 +1,7 @@
 import { RegisterUserDTO } from '@/user/DTOs/registerUser.dto';
 import { IUserResponse } from '@/user/interfaces/userResponse.interface';
 import { UserEntity } from '@/user/user.entity';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { sign } from 'jsonwebtoken'; 
@@ -25,7 +25,7 @@ export class UserService {
 
       return await this.userRepository.save(newUser);
 
-    } catch (error) {
+    } catch (error: any) {
 
       // if error code of postgres is an unique error (23505)
       if (error.code === '23505') {
@@ -36,15 +36,15 @@ export class UserService {
           phone: 'This phone already exists',
         };
 
-        const field = Object.keys(errorsMap).find(key => String(error.detail).includes(key)); // try find key on details in error
+        const field = Object.keys(errorsMap).find(key => String(error.detail ?? '').includes(key)); // try find key on details in error
         throw new HttpException(
-            field ? errorsMap[field] : 'Unique field already exists', 
-            HttpStatus.CONFLICT
+          field ? errorsMap[field] : 'Unique field already exists', 
+          HttpStatus.CONFLICT
         );
 
       }
 
-      throw new HttpException(error.detail, HttpStatus.BAD_REQUEST);
+      throw new InternalServerErrorException();
     }
   }
 
