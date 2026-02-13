@@ -1,3 +1,4 @@
+import { UserRole } from '../../user/enums/userRole.enum';
 import { UserEntity } from '../../user/user.entity';
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
@@ -13,6 +14,7 @@ export default class AdminSeeder implements Seeder {
       email: process.env.ADMIN_EMAIL,
       password: process.env.ADMIN_PASSWORD,
       phone: process.env.ADMIN_PHONE,
+      role: UserRole.ADMIN
     };
 
     const user = await userRepository.findOne({
