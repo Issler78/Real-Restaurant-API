@@ -7,12 +7,15 @@ import { Repository } from 'typeorm';
 import { sign } from 'jsonwebtoken'; 
 import { LoginUserDTO } from '@/user/DTOs/loginUser.dto';
 import { compare } from 'bcrypt';
+import { UserHelperService } from '@/helpers/user/userHelper.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+
+    private readonly userHelper: UserHelperService
   ) {}
 
   async create(registerDTO: RegisterUserDTO): Promise<UserEntity> {
@@ -94,7 +97,7 @@ export class UserService {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: this.userHelper.getRolesByString(user.role)
       },
       token: this.generateToken(user)
     };

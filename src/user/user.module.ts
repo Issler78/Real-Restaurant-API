@@ -1,3 +1,4 @@
+import { UserHelperModule } from '@/helpers/user/userHelper.module';
 import { OptionalAuthMiddleware } from '@/user/middlewares/optionalAuth.middleware';
 import { UserController } from '@/user/user.controller';
 import { UserEntity } from '@/user/user.entity';
@@ -6,7 +7,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ UserEntity ])],
+  imports: [TypeOrmModule.forFeature([ UserEntity ]), UserHelperModule],
   controllers: [UserController],
   providers: [UserService]
 })
