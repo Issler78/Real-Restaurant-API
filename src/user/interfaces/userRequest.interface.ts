@@ -1,8 +1,7 @@
 import { UserRole } from "@/user/enums/userRole.enum";
 
-export interface IUser {
-  name: string;
+export interface UserRequest {
+  sub: string;
   email: string;
-  phone: string;
   role: UserRole;
 }
