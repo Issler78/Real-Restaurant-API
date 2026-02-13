@@ -73,7 +73,11 @@ export class UserService {
     });
   }
 
-  async findById(id: string): Promise<UserEntity | null> {
+  async findById(id: string | null): Promise<UserEntity | null> {
+    if(!id) {
+      return null;
+    }
+    
     return await this.userRepository.findOne({
       where: {
         id
