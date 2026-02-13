@@ -1,7 +1,8 @@
+import { OptionalAuthMiddleware } from '@/user/middlewares/optionalAuth.middleware';
 import { UserController } from '@/user/user.controller';
 import { UserEntity } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
@@ -9,4 +10,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   controllers: [UserController],
   providers: [UserService]
 })
-export class UserModule {}
+export class UserModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(OptionalAuthMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
