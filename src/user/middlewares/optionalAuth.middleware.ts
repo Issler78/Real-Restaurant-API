@@ -11,7 +11,6 @@ export class OptionalAuthMiddleware implements NestMiddleware {
 
   async use(req: AuthRequest, res: Response, next: NextFunction) {
     if (!req.headers.authorization) {
-      req.user = new UserEntity(); // request user is an empty user entity
       next();
       return;
     }
@@ -22,11 +21,20 @@ export class OptionalAuthMiddleware implements NestMiddleware {
       const decode = verify(token, process.env.SECRET_KEY);
       const user = await this.userService.findById(decode.sub) // try find user by sub/id
 
-      req.user = user ?? new UserEntity();
+      if (!user){
+        next();
+        return;
+      }
+
+      req.user = {
+        sub: decode.sub,
+        email: user.email,
+        role: decode.role
+      };
+      
       next();
       return;
     } catch (error: any) {
-      req.user = new UserEntity(); // request user is an empty user entity
       next();
       return;
     }
