@@ -18,9 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/ormconfig.ts src/migrations/%npm_config_name%",
-    "migration:generate m:": "typeorm-ts-node-commonjs migration:generate -d src/ormconfig.ts src/migrations/$npm_config_name",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/ormconfig.ts src/database/migrations/%npm_config_name%",
+    "migration:generate m:": "typeorm-ts-node-commonjs migration:generate -d src/ormconfig.ts src/database/migrations/$npm_config_name",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/ormconfig.ts",
+    "seed:run": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d src/ormconfig.ts",
     "db:drop": "typeorm-ts-node-commonjs schema:drop -d src/ormconfig.ts"
   },
   "dependencies": {
@@ -36,7 +37,8 @@
     "pg": "^8.18.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "typeorm-extension": "^3.8.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

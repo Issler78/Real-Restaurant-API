@@ -1,8 +1,12 @@
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions.js';
-import 'dotenv/config'
+import * as dotenv from 'dotenv'
 import { DataSource } from 'typeorm';
+import { SeederOptions } from 'typeorm-extension';
+import MainSeeder from './database/seeders/mainSeeder';
 
-const ormconfig: PostgresConnectionOptions = {
+dotenv.config(); // load env variables
+
+const ormconfig: PostgresConnectionOptions & SeederOptions = {
   type: 'postgres',
   host: process.env.DB_HOST,
   port: Number(process.env.PORT),
@@ -11,7 +15,8 @@ const ormconfig: PostgresConnectionOptions = {
   database: process.env.DB_NAME,
   entities: [ __dirname + '/**/*.entity.{ts,js}' ],
   migrationsTableName: 'migrations',
-  migrations: [ __dirname + '/migrations/**/*.{ts,js}' ],
+  migrations: [ __dirname + '/database/migrations/**/*.{ts,js}' ],
+  seeds: [ MainSeeder ]
 };
 
 const AppDataSource = new DataSource(ormconfig);
