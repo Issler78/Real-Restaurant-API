@@ -1,5 +1,4 @@
 import { AuthRequest } from '@/interfaces/authRequest.interface';
-import { UserEntity } from '@/user/user.entity';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { verify } from 'jsonwebtoken';
 import { NextFunction, Response } from 'express';
@@ -31,7 +30,7 @@ export class OptionalAuthMiddleware implements NestMiddleware {
         email: user.email,
         role: decode.role
       };
-      
+
       next();
       return;
     } catch (error: any) {
