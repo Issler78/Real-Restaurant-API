@@ -20,11 +20,6 @@ export class OptionalAuthMiddleware implements NestMiddleware {
       const decode = verify(token, process.env.SECRET_KEY);
       const user = await this.userService.findById(decode.sub) // try find user by sub/id
 
-      if (!user){
-        next();
-        return;
-      }
-
       req.user = {
         sub: decode.sub,
         email: user.email,

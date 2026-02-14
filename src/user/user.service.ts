@@ -73,16 +73,18 @@ export class UserService {
     });
   }
 
-  async findById(id: string | null): Promise<UserEntity | null> {
-    if(!id) {
-      return null;
-    }
-    
-    return await this.userRepository.findOne({
+  async findById(id: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
       where: {
         id
       }
     });
+
+    if(!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    return user;
   }
 
   generateToken(user: UserEntity): string {
