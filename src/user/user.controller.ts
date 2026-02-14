@@ -1,8 +1,7 @@
 import { UserHelperService } from '@/helpers/user/userHelper.service';
 import { User } from '@/user/decorators/user.decorator';
-import { LoginUserDTO } from '@/user/DTOs/loginUser.dto';
-import { RegisterUserDTO } from '@/user/DTOs/registerUser.dto';
-import { AuthGuard } from '@/user/guards/auth.guard';
+import { CreateUserDTO } from '@/user/DTOs/createUser.dto';
+import { AuthGuard } from '@/auth/guards/auth.guard';
 import { IUserResponse } from '@/user/interfaces/userResponse.interface';
 import { UserEntity } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
@@ -23,22 +22,15 @@ export class UserController {
     private readonly userHelper: UserHelperService,
   ) {}
 
-  @Post('/register')
+  @Post('/create')
   @UsePipes(new ValidationPipe())
+  @UseGuards(AuthGuard)
   async create(
-    @Body('user') registerDTO: RegisterUserDTO,
+    @Body('user') registerDTO: CreateUserDTO,
   ): Promise<IUserResponse> {
     const newUser = await this.userService.create(registerDTO);
 
     return this.generateResponse(newUser);
-  }
-
-  @Post('/login')
-  @UsePipes(new ValidationPipe())
-  async login(@Body('user') loginDTO: LoginUserDTO): Promise<IUserResponse> {
-    const user = await this.userService.login(loginDTO);
-
-    return this.generateResponse(user);
   }
 
   @Get('/me')
@@ -57,7 +49,6 @@ export class UserController {
         phone: user.phone,
         role: this.userHelper.getRolesByString(user.role),
       },
-      token: this.userService.generateToken(user),
     };
   }
 }

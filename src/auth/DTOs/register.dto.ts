@@ -2,7 +2,7 @@ import { IsEmail, IsNotEmpty, IsString, Length } from "class-validator";
 
 
 
-export class RegisterUserDTO {
+export class RegisterDTO {
   @IsNotEmpty()
   @IsString()
   @Length(3, 255)

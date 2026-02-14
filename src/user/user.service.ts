@@ -1,4 +1,5 @@
-import { RegisterUserDTO } from '@/user/DTOs/registerUser.dto';
+import { RegisterDTO } from '@/auth/DTOs/register.dto';
+import { CreateUserDTO } from '@/user/DTOs/createUser.dto';
 import { UserEntity } from '@/user/user.entity';
 import {
   HttpException,
@@ -8,9 +9,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { sign } from 'jsonwebtoken';
-import { LoginUserDTO } from '@/user/DTOs/loginUser.dto';
-import { compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -19,7 +17,7 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(registerDTO: RegisterUserDTO): Promise<UserEntity> {
+  async create(registerDTO: CreateUserDTO|RegisterDTO): Promise<UserEntity> {
     const newUser = new UserEntity(); // create new empty user entity
 
     Object.assign(newUser, registerDTO); // assign DTO to newUser
@@ -49,26 +47,6 @@ export class UserService {
     }
   }
 
-  async login(loginDTO: LoginUserDTO): Promise<UserEntity> {
-    const user = await this.findByEmail(loginDTO.email); // try find user by email
-    if (!user) {
-      throw new HttpException(
-        'Invalid email or password',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const matchPassword = await compare(loginDTO.password, user.password); // verify if same password in DB
-    if (!matchPassword) {
-      throw new HttpException(
-        'Invalid email or password',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    return user;
-  }
-
   async findByEmail(email: string): Promise<UserEntity | null> {
     return await this.userRepository.findOne({
       where: {
@@ -89,15 +67,5 @@ export class UserService {
     }
 
     return user;
-  }
-
-  generateToken(user: UserEntity): string {
-    return sign(
-      {
-        sub: user.id,
-        role: user.role,
-      },
-      process.env.SECRET_KEY,
-    );
   }
 }
