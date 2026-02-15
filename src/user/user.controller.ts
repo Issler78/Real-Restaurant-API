@@ -14,6 +14,8 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { Roles } from '@/user/decorators/roles.decorator';
+import { RolesGuard } from '@/auth/guards/roles.guard';
 
 @Controller('user')
 export class UserController {
@@ -24,7 +26,8 @@ export class UserController {
 
   @Post('/create')
   @UsePipes(new ValidationPipe())
-  @UseGuards(AuthGuard)
+  @Roles('admin')
+  @UseGuards(AuthGuard, RolesGuard)
   async create(
     @Body('user') registerDTO: CreateUserDTO,
   ): Promise<IUserResponse> {
