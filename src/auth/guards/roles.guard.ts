@@ -19,7 +19,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const req = context.switchToHttp().getRequest();
-    const rolesHierarchy = {
+    const rolesHierarchy: Record<UserRole, UserRole[]> = {
       [UserRole.ADMIN]: [UserRole.ADMIN, UserRole.CASHIER, UserRole.WAITER, UserRole.CUSTOMER],
       [UserRole.CASHIER]: [UserRole.CASHIER, UserRole.CUSTOMER],
       [UserRole.WAITER]: [UserRole.WAITER, UserRole.CUSTOMER],
@@ -27,7 +27,7 @@ export class RolesGuard implements CanActivate {
     };
 
     // return if, in roles hierarchy[current user role] has the required role (return true of false)
-    if(rolesHierarchy[req.user.role].some(role => requiredRoles.includes(role))) {
+    if(rolesHierarchy[req.user.role].some((role: UserRole) => requiredRoles.includes(role))) {
       return true;
     }
 
