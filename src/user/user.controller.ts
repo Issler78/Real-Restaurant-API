@@ -9,13 +9,16 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
+  Put,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { Roles } from '@/user/decorators/roles.decorator';
 import { RolesGuard } from '@/auth/guards/roles.guard';
+import { UpdateUserDTO } from '@/user/DTOs/updateUser.dto';
 
 @Controller('user')
 export class UserController {
@@ -36,9 +39,18 @@ export class UserController {
     return this.generateResponse(newUser);
   }
 
+  @Put('/me')
+  @UsePipes(new ValidationPipe())
+  @UseGuards(AuthGuard)
+  async update(@Body('user') updateDTO: UpdateUserDTO, @User('sub') currentId: string): Promise<IUserResponse> {
+    const updatedUser = await this.userService.update(updateDTO, currentId);
+
+    return this.generateResponse(updatedUser);
+  }
+
   @Get('/me')
   @UseGuards(AuthGuard)
-  async getCurrent(@User('sub') userId: string) {
+  async getCurrent(@User('sub') userId: string): Promise<IUserResponse> {
     const user = await this.userService.findById(userId);
 
     return this.generateResponse(user);

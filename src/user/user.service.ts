@@ -1,5 +1,6 @@
 import { RegisterDTO } from '@/auth/DTOs/register.dto';
 import { CreateUserDTO } from '@/user/DTOs/createUser.dto';
+import { UpdateUserDTO } from '@/user/DTOs/updateUser.dto';
 import { UserEntity } from '@/user/user.entity';
 import {
   HttpException,
@@ -45,6 +46,14 @@ export class UserService {
 
       throw new InternalServerErrorException();
     }
+  }
+
+  async update(updateDTO: UpdateUserDTO, id: string): Promise<UserEntity> {
+    const user = await this.findById(id);
+
+    Object.assign(user, updateDTO);
+
+    return await this.userRepository.save(user);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
