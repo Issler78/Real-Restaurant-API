@@ -19,6 +19,7 @@ import {
 import { Roles } from '@/user/decorators/roles.decorator';
 import { RolesGuard } from '@/auth/guards/roles.guard';
 import { UpdateUserDTO } from '@/user/DTOs/updateUser.dto';
+import { UpdateUserRoleDTO } from '@/user/DTOs/updateUserRole.dto';
 
 @Controller('user')
 export class UserController {
@@ -44,6 +45,16 @@ export class UserController {
   @UseGuards(AuthGuard)
   async update(@Body('user') updateDTO: UpdateUserDTO, @User('sub') currentId: string): Promise<IUserResponse> {
     const updatedUser = await this.userService.update(updateDTO, currentId);
+
+    return this.generateResponse(updatedUser);
+  }
+
+  @Put('/update/:id')
+  @UsePipes(new ValidationPipe())
+  @Roles('admin')
+  @UseGuards(AuthGuard, RolesGuard)
+  async updateRole(@Body('user') updateRoleDTO: UpdateUserRoleDTO, @Param('id') userId: string): Promise<IUserResponse> {
+    const updatedUser = await this.userService.update(updateRoleDTO, userId);
 
     return this.generateResponse(updatedUser);
   }

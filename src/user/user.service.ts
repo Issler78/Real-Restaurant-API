@@ -1,6 +1,7 @@
 import { RegisterDTO } from '@/auth/DTOs/register.dto';
 import { CreateUserDTO } from '@/user/DTOs/createUser.dto';
 import { UpdateUserDTO } from '@/user/DTOs/updateUser.dto';
+import { UpdateUserRoleDTO } from '@/user/DTOs/updateUserRole.dto';
 import { UserEntity } from '@/user/user.entity';
 import {
   HttpException,
@@ -48,7 +49,7 @@ export class UserService {
     }
   }
 
-  async update(updateDTO: UpdateUserDTO, id: string): Promise<UserEntity> {
+  async update(updateDTO: UpdateUserDTO|UpdateUserRoleDTO, id: string): Promise<UserEntity> {
     const user = await this.findById(id);
 
     Object.assign(user, updateDTO);
