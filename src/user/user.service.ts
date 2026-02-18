@@ -2,6 +2,7 @@ import { RegisterDTO } from '@/auth/DTOs/register.dto';
 import { CreateUserDTO } from '@/user/DTOs/createUser.dto';
 import { UpdateUserDTO } from '@/user/DTOs/updateUser.dto';
 import { UpdateUserRoleDTO } from '@/user/DTOs/updateUserRole.dto';
+import { ListUsersQueryDTO } from '@/user/interfaces/listUsersQuery.dto';
 import { UserEntity } from '@/user/user.entity';
 import {
   HttpException,
@@ -10,7 +11,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -18,6 +19,46 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
   ) {}
+
+  async findAll(query: ListUsersQueryDTO): Promise<UserEntity[]> {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    if(query.type) {
+      
+      const typesFilter = {
+        staff: (queryBuilder: SelectQueryBuilder<UserEntity>) => {
+          queryBuilder.andWhere('user.role IN (:...roles)', { roles: ['waiter', 'cashier'] })
+        },
+        customer: (queryBuilder: SelectQueryBuilder<UserEntity>) => {
+          queryBuilder.andWhere('user.role = :role', { role: 'customer' })
+        }
+      };
+
+      typesFilter[query.type](queryBuilder);
+
+    }
+
+    if(query.role) {
+      queryBuilder.andWhere('user.role IN (:...roles)', { roles: query.role });
+    }
+
+    if(query.email) {
+      queryBuilder.andWhere('user.email = :email', { email: query.email });
+    }
+
+    if(query.name) {
+      queryBuilder.andWhere('user.name ILIKE :name', { name: `%${query.name}%` });
+    }
+
+    queryBuilder.andWhere('user.role != :adminrole', { adminrole: 'admin' });
+
+    query.limit ?? queryBuilder.limit(query.limit)
+    query.offset ?? queryBuilder.offset(query.offset)
+
+    queryBuilder.orderBy('user.name', 'ASC');
+
+    return await queryBuilder.getMany();
+  }
 
   async create(registerDTO: CreateUserDTO|RegisterDTO): Promise<UserEntity> {
     const newUser = new UserEntity(); // create new empty user entity
