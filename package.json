@@ -18,11 +18,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/ormconfig.ts src/database/migrations/%npm_config_name%",
-    "migration:generate m:": "typeorm-ts-node-commonjs migration:generate -d src/ormconfig.ts src/database/migrations/$npm_config_name",
-    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/ormconfig.ts",
-    "seed:run": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d src/ormconfig.ts",
-    "db:drop": "typeorm-ts-node-commonjs schema:drop -d src/ormconfig.ts"
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/ormconfig.ts src/database/migrations/%npm_config_name%",
+    "migration:generate m:": "typeorm-ts-node-commonjs migration:generate -d src/database/ormconfig.ts src/database/migrations/$npm_config_name",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/ormconfig.ts",
+    "seed:run": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d src/database/ormconfig.ts",
+    "db:drop": "typeorm-ts-node-commonjs schema:drop -d src/database/ormconfig.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

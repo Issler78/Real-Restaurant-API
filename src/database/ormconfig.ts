@@ -2,7 +2,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 import * as dotenv from 'dotenv'
 import { DataSource } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
-import MainSeeder from './database/seeders/mainSeeder';
+import MainSeeder from './seeders/mainSeeder';
 
 dotenv.config(); // load env variables
 
@@ -13,9 +13,9 @@ const ormconfig: PostgresConnectionOptions & SeederOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [ __dirname + '/**/*.entity.{ts,js}' ],
+  entities: [ __dirname + '/../**/*.entity.{ts,js}' ],
   migrationsTableName: 'migrations',
-  migrations: [ __dirname + '/database/migrations/**/*.{ts,js}' ],
+  migrations: [ __dirname + '/migrations/**/*.{ts,js}' ],
   seeds: [ MainSeeder ]
 };
 
