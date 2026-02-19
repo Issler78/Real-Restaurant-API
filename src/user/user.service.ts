@@ -2,7 +2,7 @@ import { RegisterDTO } from '@/auth/DTOs/register.dto';
 import { CreateUserDTO } from '@/user/DTOs/createUser.dto';
 import { UpdateUserDTO } from '@/user/DTOs/updateUser.dto';
 import { UpdateUserRoleDTO } from '@/user/DTOs/updateUserRole.dto';
-import { ListUsersQueryDTO } from '@/user/interfaces/listUsersQuery.dto';
+import { ListUsersQueryDTO } from '@/user/DTOs/listUsersQuery.dto';
 import { UserEntity } from '@/user/user.entity';
 import {
   HttpException,

@@ -21,7 +21,7 @@ import { Roles } from '@/user/decorators/roles.decorator';
 import { RolesGuard } from '@/auth/guards/roles.guard';
 import { UpdateUserDTO } from '@/user/DTOs/updateUser.dto';
 import { UpdateUserRoleDTO } from '@/user/DTOs/updateUserRole.dto';
-import { ListUsersQueryDTO } from '@/user/interfaces/listUsersQuery.dto';
+import { ListUsersQueryDTO } from '@/user/DTOs/listUsersQuery.dto';
 import { IUsersResponse } from '@/user/interfaces/usersResponse.interface';
 
 @Controller('users')
