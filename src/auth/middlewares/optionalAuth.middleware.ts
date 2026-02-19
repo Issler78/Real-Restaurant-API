@@ -1,4 +1,4 @@
-import { AuthRequest } from '@/interfaces/authRequest.interface';
+import { AuthRequest } from '@/auth/interfaces/authRequest.interface';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { verify } from 'jsonwebtoken';
 import { NextFunction, Response } from 'express';
