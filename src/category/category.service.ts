@@ -34,4 +34,8 @@ export class CategoryService {
       throw new InternalServerErrorException();
     }
   }
+
+  async findAll(): Promise<CategoryEntity[]> {
+    return await this.categoryRepository.find({ order: { name: "ASC" } });
+  }
 }
