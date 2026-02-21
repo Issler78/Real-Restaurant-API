@@ -6,7 +6,7 @@ import { IProductResponse } from "@/product/interfaces/productResponse.interface
 import { ProductEntity } from "@/product/product.entity";
 import { ProductService } from "@/product/product.service";
 import { Roles } from "@/user/decorators/roles.decorator";
-import { Body, Controller, Post, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 
 
 @Controller('products')
@@ -21,6 +21,13 @@ export class ProductController {
     const newProduct = await this.productService.create(newProductDTO);
 
     return this.generateResponse(newProduct);
+  }
+
+  @Get('/:id')
+  async getById(@Param('id') productId: string): Promise<IProductResponse> {
+    const product = await this.productService.findById(Number(productId));
+
+    return this.generateResponse(product);
   }
 
   generateResponse(product: ProductEntity): IProductResponse {

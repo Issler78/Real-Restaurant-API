@@ -35,4 +35,16 @@ export class ProductService {
       throw new InternalServerErrorException();
     }
   }
+
+  async findById(id: number): Promise<ProductEntity> {
+    try{
+      return await this.productRepository.findOneOrFail({
+        where: {
+          id
+        }
+      });
+    } catch (error) {
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+    }
+  }
 }
