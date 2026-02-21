@@ -19,7 +19,7 @@ export class ProductService {
     private readonly productHelper: ProductHelperService,
   ) {}
 
-  async create(newProductDTO: CreateProductDTO) {
+  async create(newProductDTO: CreateProductDTO): Promise<ProductEntity> {
     const newProduct = this.productRepository.create({
       ...newProductDTO,
       price: this.productHelper.ToCents(newProductDTO.price),

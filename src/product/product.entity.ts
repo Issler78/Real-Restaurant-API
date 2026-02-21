@@ -1,5 +1,5 @@
 import { CategoryEntity } from '../category/category.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'products' })
 export class ProductEntity {
@@ -15,7 +15,11 @@ export class ProductEntity {
   @Column({ type: 'int'})
   price: number; // save as cents
 
+  @Column({ name: 'category_id' })
+  categoryId: number;
+
   @ManyToOne(() => CategoryEntity, (category) => category.products)
+  @JoinColumn({ name: 'category_id' })
   category: CategoryEntity
 
   @Column({ type: 'boolean', default: true })
