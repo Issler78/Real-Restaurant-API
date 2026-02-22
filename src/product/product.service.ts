@@ -1,5 +1,6 @@
 import { ProductHelperService } from '@/helpers/product/productHelper.service';
 import { CreateProductDTO } from '@/product/DTOs/createProduct.dto';
+import { ListProductsQuery } from '@/product/DTOs/listProductsQuery.dto';
 import { ProductEntity } from '@/product/product.entity';
 import {
   HttpException,
@@ -34,6 +35,24 @@ export class ProductService {
 
       throw new InternalServerErrorException();
     }
+  }
+
+  async findAll(query: ListProductsQuery): Promise<ProductEntity[]> {
+    const queryBuilder = this.productRepository.createQueryBuilder('product');
+    queryBuilder.andWhere('product.available IN (:...values)', { 
+      values: query.available ? [true, false] : [true] 
+    });
+
+    if(query.product) {
+      queryBuilder.andWhere('product.name ILIKE :name', { name: `%${query.product}%` })
+    }
+
+    query.limit ?? queryBuilder.limit(query.limit);
+    query.offset ?? queryBuilder.offset(query.offset);
+
+    queryBuilder.orderBy('product.name', 'ASC');
+
+    return await queryBuilder.getMany();
   }
 
   async findById(id: number): Promise<ProductEntity> {
