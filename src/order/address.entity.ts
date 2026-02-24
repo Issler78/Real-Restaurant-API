@@ -20,7 +20,7 @@ export class AddressEntity{
     @Column({ type: 'varchar', length: 255 })
     state: string;
 
-    @Column({ type: 'varchar', length: 8, name: 'zip_code' })
+    @Column({ type: 'char', length: 8, name: 'zip_code' })
     zipCode: string;
 
     @Column({ type: 'varchar', length: 255, nullable: true })
