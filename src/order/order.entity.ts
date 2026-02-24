@@ -64,7 +64,7 @@ export class OrderEntity {
   @Column({ type: 'enum', enum: PaymentStatus, name: 'payment_status' })
   paymentStatus: PaymentStatus;
 
-  @Column({ type: 'enum', enum: OrderStatus, name: 'order_status' })
+  @Column({ type: 'enum', enum: OrderStatus, name: 'order_status', default: OrderStatus.CREATED })
   orderStatus: OrderStatus;
 
   @Column({
