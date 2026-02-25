@@ -11,7 +11,6 @@ import {
   IsDecimal,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   Length,
   Validate,

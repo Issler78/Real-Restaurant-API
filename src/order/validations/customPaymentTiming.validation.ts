@@ -11,7 +11,7 @@ import {
 export class CustomPaymentTimingValidation implements ValidatorConstraintInterface {
   validate(paymentTiming: PaymentTiming, args: ValidationArguments): boolean {
     const dto = args.object as CreateCustomerOrderDTO;
-    const payMethod = dto.paymentMethod; // get value of payment timing
+    const payMethod = dto.paymentMethod; // get value of payment method
 
     // checks if payment method == cash or pix, if true, check if payment timing is null, if false (payment method == debit or cretid card), check if payment timing not is null
     if (payMethod == PaymentMethod.CASH || payMethod == PaymentMethod.PIX) {

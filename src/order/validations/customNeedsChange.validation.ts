@@ -10,7 +10,7 @@ import {
 export class CustomNeedsChangeValidation implements ValidatorConstraintInterface {
   validate(needsChange: boolean, args: ValidationArguments): boolean {
     const dto = args.object as CreateCustomerOrderDTO;
-    const payMethod = dto.paymentMethod; // get value of payment timing
+    const payMethod = dto.paymentMethod; // get value of payment method
 
     if (payMethod == PaymentMethod.CASH) {
       return needsChange != null;
