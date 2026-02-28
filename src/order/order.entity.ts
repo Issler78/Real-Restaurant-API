@@ -36,14 +36,14 @@ export class OrderEntity {
   @Column({ name: 'address_id', nullable: true })
   addressId?: string;
 
-  @ManyToOne(() => AddressEntity, { nullable: true })
+  @ManyToOne(() => AddressEntity, { nullable: true, cascade: true })
   @JoinColumn({ name: 'address_id' })
   address?: AddressEntity;
 
-  @OneToMany(() => OrderItemsEntity, (item) => item.order)
+  @OneToMany(() => OrderItemsEntity, (item) => item.order, { cascade: true })
   items: OrderItemsEntity[];
 
-  @Column({ type: 'int', name: 'delivery_fee' })
+  @Column({ type: 'int', name: 'delivery_fee', nullable: true })
   deliveryFee: number; // save as cents
 
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -61,7 +61,7 @@ export class OrderEntity {
   @Column({ type: 'int', nullable: true, name: 'change_for' })
   changeFor?: number; // save as cents
 
-  @Column({ type: 'enum', enum: PaymentStatus, name: 'payment_status' })
+  @Column({ type: 'enum', enum: PaymentStatus, name: 'payment_status', default: PaymentStatus.PENDING })
   paymentStatus: PaymentStatus;
 
   @Column({ type: 'enum', enum: OrderStatus, name: 'order_status', default: OrderStatus.CREATED })

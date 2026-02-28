@@ -17,6 +17,7 @@ export class OrderItemsEntity {
   orderId: string;
 
   @ManyToOne(() => OrderEntity, (order) => order.items, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'order_id' })
   order: OrderEntity;
 
   @Column({ name: 'product_id' })

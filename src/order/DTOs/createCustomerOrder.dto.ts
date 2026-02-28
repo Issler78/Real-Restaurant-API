@@ -54,5 +54,5 @@ export class CreateCustomerOrderDTO {
   @ValidateIf(o => o.needsChange === true)
   @IsNotEmpty()
   @IsDecimal({ force_decimal: true, decimal_digits: '2' })
-  changeFor?: number;
+  changeFor?: string;
 }
