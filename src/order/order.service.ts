@@ -17,6 +17,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -125,6 +126,9 @@ export class OrderService {
     }, 0);
 
     order.subtotal = order.total + order.deliveryFee; // only if not include extras discounts
+
+    //id
+    order.id = `ORD-${randomUUID()}`;
 
     try {
       return await this.orderRepository.save(order);
