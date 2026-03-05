@@ -30,8 +30,8 @@ export class OrderEntity {
   @JoinColumn({ name: 'customer_id' })
   customer?: UserEntity;
 
-  @Column({ type: 'boolean' })
-  pickup: boolean;
+  @Column({ type: 'boolean', nullable: true })
+  pickup?: boolean;
 
   @Column({ name: 'address_id', nullable: true })
   addressId?: string;
@@ -52,8 +52,8 @@ export class OrderEntity {
   @Column({ type: 'enum', enum: PaymentMethod, name: 'payment_method' })
   paymentMethod: PaymentMethod;
 
-  @Column({ type: 'enum', enum: PaymentTiming, name: 'payment_timing' })
-  paymentTiming: PaymentTiming;
+  @Column({ type: 'enum', enum: PaymentTiming, name: 'payment_timing', nullable: true })
+  paymentTiming?: PaymentTiming;
 
   @Column({ type: 'boolean', nullable: true, name: 'needs_change' })
   needsChange?: boolean;

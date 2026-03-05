@@ -9,14 +9,24 @@ import { OrderService } from '@/order/order.service';
 import { Roles } from '@/user/decorators/roles.decorator';
 import { User } from '@/user/decorators/user.decorator';
 import { UserRole } from '@/user/enums/userRole.enum';
-import { Body, Controller, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService, private readonly productHelper: ProductHelperService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly productHelper: ProductHelperService,
+  ) {}
 
   @Post()
-  @Roles('customer', 'cashier')
+  @Roles('customer')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(
     new ValidationPipe({
@@ -25,8 +35,34 @@ export class OrderController {
       whitelist: true,
     }),
   )
-  async create(@Body('order') newOrderDTO: CreateCustomerOrderDTO, @User('sub') currentUserId: string, @User('role') currentRole: UserRole) {
-    const newOrder = await this.orderService.create(newOrderDTO, currentUserId, currentRole)
+  async create(
+    @Body('order') newOrderDTO: CreateCustomerOrderDTO,
+    @User('sub') currentUserId: string,
+  ) {
+    const newOrder = await this.orderService.createCustomerOrder(
+      newOrderDTO,
+      currentUserId,
+    );
+
+    return this.generateSimpleResponse(newOrder);
+  }
+
+  @Post('/cashier')
+  @Roles('cashier')
+  @UseGuards(AuthGuard, RolesGuard)
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      forbidNonWhitelisted: true,
+      whitelist: true,
+    }),
+  )
+  async cashierCreate(
+    @Body('order') newOrderDTO: CreateCashierOrderDTO,
+  ) {
+    const newOrder = await this.orderService.createCashierOrder(
+      newOrderDTO,
+    );
 
     return this.generateSimpleResponse(newOrder);
   }
@@ -37,8 +73,8 @@ export class OrderController {
         id: newOrder.id,
         order_status: newOrder.orderStatus,
         payment_method: newOrder.paymentMethod,
-        subtotal: this.productHelper.ToDecimal(newOrder.subtotal).toString()
-      }
-    }
+        subtotal: this.productHelper.ToDecimal(newOrder.subtotal).toString(),
+      },
+    };
   }
 }
