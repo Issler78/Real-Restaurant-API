@@ -1,3 +1,4 @@
+import { OrderHelperService } from '@/helpers/order/orderHelper.service';
 import { ProductHelperService } from '@/helpers/product/productHelper.service';
 import { AddressEntity } from '@/order/address.entity';
 import { AddressDTO } from '@/order/DTOs/address.dto';
@@ -5,6 +6,8 @@ import { CreateCashierOrderDTO } from '@/order/DTOs/createCashierOrder.dto';
 import { CreateCustomerOrderDTO } from '@/order/DTOs/createCustomerOrder.dto';
 import { CreateOrderDTO } from '@/order/DTOs/createOrder.dto';
 import { OrderItemsDTO } from '@/order/DTOs/orderItems.dto';
+import { UpdateOrderStatusDTO } from '@/order/DTOs/updateOrderStatus.dto';
+import { OrderStatus } from '@/order/enums/orderStatus.enum';
 import { OrderType } from '@/order/enums/orderType.enum';
 import { PaymentMethod } from '@/order/enums/paymentMethod.enum';
 import { PaymentTiming } from '@/order/enums/paymentTiming.enum';
@@ -36,9 +39,13 @@ export class OrderService {
     private readonly userService: UserService,
 
     private readonly productHelper: ProductHelperService,
+
+    private readonly orderHelper: OrderHelperService,
   ) {}
 
-  async createCashierOrder(newOrderDTO: CreateCashierOrderDTO) {
+  async createCashierOrder(
+    newOrderDTO: CreateCashierOrderDTO,
+  ): Promise<OrderEntity> {
     const order = new OrderEntity();
     Object.assign(order, newOrderDTO);
 
@@ -53,7 +60,7 @@ export class OrderService {
   async createCustomerOrder(
     newOrderDTO: CreateCustomerOrderDTO,
     currentUserId: string,
-  ) {
+  ): Promise<OrderEntity> {
     const order = new OrderEntity();
     Object.assign(order, newOrderDTO);
 
@@ -110,6 +117,48 @@ export class OrderService {
     return await this.create(order);
   }
 
+  async updateStatus(
+    orderId: string,
+    newStatus: UpdateOrderStatusDTO,
+  ): Promise<OrderEntity> {
+    const status = newStatus.status;
+
+    const order = await this.findById(orderId);
+    const currentStatus = order.orderStatus;
+
+    
+
+    if (!this.orderHelper.canUpdateStatus(currentStatus, status, order.type)) {
+      throw new HttpException(
+        'Order status cannot be changed to the provided value',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    try {
+      order.orderStatus = status;
+      return await this.orderRepository.save(order);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'It was not possible to update the order status',
+      );
+    }
+  }
+
+  async findById(orderId: string): Promise<OrderEntity> {
+    const order = await this.orderRepository.findOne({
+      where: {
+        id: orderId,
+      },
+    });
+
+    if (!order) {
+      throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
+    }
+
+    return order;
+  }
+
   private async create(order: OrderEntity): Promise<OrderEntity> {
     //order items
     const newItems = await this.createOrderItems([...order.items], order); // NEW array with items
@@ -137,9 +186,7 @@ export class OrderService {
     }
   }
 
-
-  
-  private async createAddress(addressDTO: AddressDTO) {
+  private async createAddress(addressDTO: AddressDTO): Promise<void> {
     const address = new AddressEntity();
     Object.assign(address, addressDTO);
 
@@ -181,7 +228,10 @@ export class OrderService {
     return orderItems;
   }
 
-  private validateCashChange(order: OrderEntity, newOrderDTO: CreateOrderDTO) {
+  private validateCashChange(
+    order: OrderEntity,
+    newOrderDTO: CreateOrderDTO,
+  ): void {
     const isCash = order.paymentMethod === PaymentMethod.CASH; // return true or false
     const needsChangeIsNull = order.needsChange == null; // return true or false
 

@@ -3,6 +3,7 @@ import { RolesGuard } from '@/auth/guards/roles.guard';
 import { ProductHelperService } from '@/helpers/product/productHelper.service';
 import { CreateCashierOrderDTO } from '@/order/DTOs/createCashierOrder.dto';
 import { CreateCustomerOrderDTO } from '@/order/DTOs/createCustomerOrder.dto';
+import { UpdateOrderStatusDTO } from '@/order/DTOs/updateOrderStatus.dto';
 import { ISimpleOrderResponse } from '@/order/interfaces/simpleOrderResponse.interface';
 import { OrderEntity } from '@/order/order.entity';
 import { OrderService } from '@/order/order.service';
@@ -12,7 +13,9 @@ import { UserRole } from '@/user/enums/userRole.enum';
 import {
   Body,
   Controller,
+  Param,
   Post,
+  Put,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -67,13 +70,23 @@ export class OrderController {
     return this.generateSimpleResponse(newOrder);
   }
 
-  generateSimpleResponse(newOrder: OrderEntity): ISimpleOrderResponse {
+  @Put('/status/:id')
+  @Roles('waiter')
+  @UseGuards(AuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe())
+  async updateStatus(@Param('id') orderId: string, @Body('newStatus') newStatus: UpdateOrderStatusDTO){
+    const order = await this.orderService.updateStatus(orderId, newStatus);
+
+    return this.generateSimpleResponse(order);
+  }
+
+  generateSimpleResponse(order: OrderEntity): ISimpleOrderResponse {
     return {
       order: {
-        id: newOrder.id,
-        order_status: newOrder.orderStatus,
-        payment_method: newOrder.paymentMethod,
-        subtotal: this.productHelper.ToDecimal(newOrder.subtotal).toString(),
+        id: order.id,
+        order_status: order.orderStatus,
+        payment_method: order.paymentMethod,
+        subtotal: this.productHelper.ToDecimal(order.subtotal).toString(),
       },
     };
   }
