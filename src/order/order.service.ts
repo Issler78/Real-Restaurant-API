@@ -10,6 +10,7 @@ import { UpdateOrderStatusDTO } from '@/order/DTOs/updateOrderStatus.dto';
 import { OrderStatus } from '@/order/enums/orderStatus.enum';
 import { OrderType } from '@/order/enums/orderType.enum';
 import { PaymentMethod } from '@/order/enums/paymentMethod.enum';
+import { PaymentStatus } from '@/order/enums/paymentStatus.enum';
 import { PaymentTiming } from '@/order/enums/paymentTiming.enum';
 import { OrderEntity } from '@/order/order.entity';
 import { OrderItemsEntity } from '@/order/orderItem.entity';
@@ -23,7 +24,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class OrderService {
@@ -50,6 +51,7 @@ export class OrderService {
     Object.assign(order, newOrderDTO);
 
     order.type = OrderType.COUNTER; // assign type of order (user role always is cashier in this method)
+    order.orderStatus = OrderStatus.CONFIRMED;
 
     // cash change
     this.validateCashChange(order, newOrderDTO);
@@ -125,15 +127,16 @@ export class OrderService {
 
     const order = await this.findById(orderId);
     const currentStatus = order.orderStatus;
-
     
-
+    // check if the status transition is valid
     if (!this.orderHelper.canUpdateStatus(currentStatus, status, order.type)) {
       throw new HttpException(
         'Order status cannot be changed to the provided value',
         HttpStatus.FORBIDDEN,
       );
     }
+
+    this.validatePaymentRules(order, status);
 
     try {
       order.orderStatus = status;
@@ -226,6 +229,58 @@ export class OrderService {
     );
 
     return orderItems;
+  }
+
+  private validatePaymentRules(order: OrderEntity, newStatus: OrderStatus): void {
+
+    // check if counter order has been paid before change status to completed
+    if (order.type === OrderType.COUNTER && newStatus === OrderStatus.COMPLETED && order.paymentStatus !== PaymentStatus.PAID) {
+      throw new HttpException('Counter orders must be paid before being completed', HttpStatus.CONFLICT);
+    }
+
+    // check if order type is delivery
+    if (order.type === OrderType.DELIVERY){
+
+      // check if order has cancelled
+      if(newStatus === OrderStatus.CANCELED){
+        // logic to refound...
+      }
+
+
+      // checker if payment method is a card
+      const isCard = [PaymentMethod.CRETID_CARD, PaymentMethod.DEBIT_CARD].includes(order.paymentMethod);
+      // checks if order has been paid
+      const hasPaid = order.paymentStatus === PaymentStatus.PAID;
+
+
+
+      // checks scenarios to validate transitions before out for delivery
+
+      if(
+        (order.orderStatus === OrderStatus.CONFIRMED && newStatus === OrderStatus.PREPARING) ||
+        (order.orderStatus === OrderStatus.READY && newStatus === OrderStatus.OUT_FOR_DELIVERY)
+      ){
+        
+        // check if payment method pix or card with timing = BEFORE hasen't been paid
+        if (
+          (order.paymentMethod === PaymentMethod.PIX && !hasPaid) || 
+          (isCard && order.paymentTiming === PaymentTiming.BEFORE && !hasPaid)
+        ) {
+          throw new HttpException("Impossible update order status before the payment status has 'paid'", HttpStatus.CONFLICT);
+        }
+
+      }
+
+      // checks if the order can be completed
+      if(order.orderStatus === OrderStatus.OUT_FOR_DELIVERY && newStatus === OrderStatus.COMPLETED){
+        
+        if(order.paymentTiming === PaymentTiming.ON_DELIVERY && !hasPaid){
+          throw new HttpException("Impossible update order status before the payment status has 'paid'", HttpStatus.CONFLICT);
+        }
+
+      }
+
+    }
   }
 
   private validateCashChange(
